@@ -1,6 +1,6 @@
 import polars as pl
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-from wordcloud import WordCloud
+#from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import ast
 
@@ -43,11 +43,11 @@ df = df.drop(["feedback", "title"])
 # print(df['consolidated_feedback'][0])
 
 # Calculate the subjectivity and polarity for each review which is then used to evaluate the sentiment of the reviewer
-df = df.with_columns(pl.col('consolidated_feedback').apply(analyze_sentiment).alias('compound_scores'))
-df = df.with_columns(pl.col('compound_scores').str.split("'compound':").list.get(1).str.strip('}').str.strip().alias('compound'))
+df = df.with_columns(pl.col('consolidated_feedback').map_elements(analyze_sentiment).alias('compound_scores'))
+df = df.with_columns(pl.col('compound_scores').str.split("'compound':").list.get(1).str.replace(' ','').str.replace('}','').alias('compound'))
 df = df.with_columns(pl.col('compound').cast(pl.Float64).alias('compound'))
 
-df = df.with_columns(df['compound'].apply(getTextAnalysis).alias('score'))
+df = df.with_columns(df['compound'].map_elements(getTextAnalysis).alias('score'))
 # print(df.head())
 
 positive = df.filter(pl.col('score') == 'positive')

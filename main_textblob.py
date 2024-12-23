@@ -1,6 +1,6 @@
 import polars as pl
 from textblob import TextBlob
-from wordcloud import WordCloud
+#from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
 
@@ -66,17 +66,17 @@ df = df.with_columns([pl.concat_str([pl.col("title"), pl.col("feedback").str.rep
 
 # Remove the original 'feedback' and 'title' columns, not required
 df = df.drop(["feedback", "title"])
-# print(df.describe())
-# print(df['consolidated_feedback'][0])
+print(df.describe())
+print(df['consolidated_feedback'][0])
 
 # print(TextBlob(df['consolidated_feedback'][0]).sentiment.polarity)
 # Calculate the subjectivity and polarity for each review which is then used to evaluate the sentiment of the reviewer
-df = df.with_columns([df['consolidated_feedback'].apply(getTextSubjectivity).alias('subjectivity')])
-df = df.with_columns([df['consolidated_feedback'].apply(getTextPolarity).alias('polarity')])
+df = df.with_columns([df['consolidated_feedback'].map_elements(getTextSubjectivity).alias('subjectivity')])
+df = df.with_columns([df['consolidated_feedback'].map_elements(getTextPolarity).alias('polarity')])
 # print(df.head())
 
 
-df = df.with_columns(df['polarity'].apply(getTextAnalysis).alias('score'))
+df = df.with_columns(df['polarity'].map_elements(getTextAnalysis).alias('score'))
 # print(df.head())
 
 positive = df.filter(pl.col('score') == 'positive')

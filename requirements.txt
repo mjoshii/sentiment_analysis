@@ -1,0 +1,6 @@
+polars
+textblob
+wordcloud
+matplotlib
+vaderSentiment
+astor
